@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GAMESHOW TIN HỌC 12 - BÀI 8: ĐỊNH DẠNG VĂN BẢN</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #06b6d4;
+      --accent: #f43f5e;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --radius: 16px;
+      --shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 1050px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 10;
+    }
+
+    .header-bar {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      border-left: 6px solid var(--accent);
+    }
+
+    .title-group h1 {
+      font-size: 1.35rem;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-group p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .class-badge-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+      border: 2px dashed #0284c7;
+      padding: 6px 14px;
+      border-radius: 30px;
+    }
+
+    .class-badge-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0369a1;
+      text-transform: uppercase;
+    }
+
+    .class-badge-input {
+      background: #ffffff;
+      border: 1px solid #7dd3fc;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0c4a6e;
+      width: 140px;
+      text-align: center;
+      outline: none;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .stat-pill {
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .control-panel {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: #e11d48; }
+    .btn-outline { background: #f8fafc; color: #475569; border: 1.5px solid #cbd5e1; }
+    .btn-outline:hover { background: #e2e8f0; }
+
+    .student-selector-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .student-select {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1.5px solid #93c5fd;
+      background: white;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      min-width: 170px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .current-student-score {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--accent);
+      background: #ffe4e6;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid #fecdd3;
+    }
+
+    .quiz-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      min-height: 440px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .question-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge-topic {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-type {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .question-content {
+      font-size: 1.25rem;
+      font-weight: 800;
+      line-height: 1.55;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option-btn {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1e293b;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover:not(.locked) {
+      border-color: var(--primary);
+      background: #eff6ff;
+      transform: translateY(-2px);
+    }
+
+    .option-prefix {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #475569;
+      flex-shrink: 0;
+    }
+
+    .option-btn.correct {
+      border-color: var(--success) !important;
+      background: #ecfdf5 !important;
+      color: #065f46 !important;
+    }
+    .option-btn.correct .option-prefix {
+      background: var(--success) !important;
+      color: white !important;
+    }
+
+    .option-btn.wrong {
+      border-color: var(--danger) !important;
+      background: #fef2f2 !important;
+      color: #991b1b !important;
+    }
+    .option-btn.wrong .option-prefix {
+      background: var(--danger) !important;
+      color: white !important;
+    }
+
+    .tf-container {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 30px 0;
+    }
+
+    .tf-btn {
+      flex: 1;
+      max-width: 240px;
+      padding: 20px;
+      border-radius: 16px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 3px solid transparent;
+      transition: all 0.25s ease;
+    }
+
+    .tf-btn-true { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .tf-btn-true:hover:not(.locked) { background: #d1fae5; transform: translateY(-3px); }
+    .tf-btn-false { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+    .tf-btn-false:hover:not(.locked) { background: #ffe4e6; transform: translateY(-3px); }
+
+    .tf-btn.tf-correct {
+      background: #10b981 !important;
+      color: #ffffff !important;
+      border-color: #059669 !important;
+    }
+
+    .tf-btn.tf-wrong {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      border-color: #b91c1c !important;
+    }
+
+    .drag-zone {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .drag-items-pool {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      min-height: 56px;
+      border: 2px dashed #94a3b8;
+    }
+
+    .drag-card {
+      background: #ffffff;
+      color: #0f172a;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 2px solid #64748b;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: grab;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+      touch-action: none;
+    }
+    .drag-card.dragging { opacity: 0.5; cursor: grabbing; }
+
+    .drop-targets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .drop-target-card {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 125px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .drop-target-card.highlight {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .drop-target-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      border-bottom: 1.5px solid #f1f5f9;
+      padding-bottom: 6px;
+    }
+
+    .drop-slots-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .explanation-box {
+      margin-top: auto;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border-left: 5px solid var(--primary);
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .explanation-box.show { display: block; }
+    .explanation-title { font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; }
+    .explanation-desc { font-size: 0.92rem; color: #475569; line-height: 1.5; }
+
+    .floating-score {
+      position: absolute;
+      font-size: 2.3rem;
+      font-weight: 900;
+      pointer-events: none;
+      z-index: 1000;
+      animation: floatUp 1.2s forwards ease-out;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .score-plus { color: #10b981; }
+    .score-minus { color: #ef4444; }
+
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translateY(0) scale(0.6); }
+      20% { opacity: 1; transform: translateY(-20px) scale(1.15); }
+      80% { opacity: 1; transform: translateY(-70px) scale(1); }
+      100% { opacity: 0; transform: translateY(-110px) scale(0.8); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2000;
+      visibility: hidden; opacity: 0;
+      transition: all 0.25s ease;
+    }
+    .modal-overlay.open { visibility: visible; opacity: 1; }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: var(--radius);
+      width: 90%; max-width: 650px; max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;
+    }
+
+    .btn-close-modal {
+      background: #f1f5f9; border: none; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; font-weight: 800; color: #64748b;
+    }
+
+    .wheel-container {
+      display: flex; flex-direction: column; align-items: center; gap: 16px; position: relative;
+    }
+
+    .wheel-pointer {
+      position: absolute; top: -12px; width: 0; height: 0;
+      border-left: 18px solid transparent; border-right: 18px solid transparent;
+      border-top: 32px solid var(--accent); z-index: 20;
+    }
+
+    #wheelCanvas { width: 320px; height: 320px; border-radius: 50%; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+    .wheel-result { font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); min-height: 36px; text-align: center; }
+
+    .scoreboard-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .scoreboard-table th, .scoreboard-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    .scoreboard-table th { background: #f8fafc; color: #475569; font-weight: 800; }
+
+    .score-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-weight: 800; }
+    .score-badge.positive { background: #dcfce7; color: #15803d; }
+    .score-badge.negative { background: #fee2e2; color: #b91c1c; }
+
+    .drawer-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+      gap: 8px; max-height: 280px; overflow-y: auto; padding: 6px;
+    }
+
+    .grid-num-btn {
+      aspect-ratio: 1; border-radius: 8px; border: 1.5px solid #cbd5e1;
+      background: #f8fafc; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .grid-num-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+    .grid-num-btn.done-correct { border-color: var(--success); background: #dcfce7; color: #15803d; }
+    .grid-num-btn.done-wrong { border-color: var(--danger); background: #fee2e2; color: #b91c1c; }
+
+    @media (max-width: 768px) {
+      .header-bar { flex-direction: column; align-items: flex-start; }
+      .control-row { flex-direction: column; align-items: stretch; }
+      .btn-group { justify-content: space-between; }
+      .options-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confettiCanvas"></canvas>
+
+  <div class="app-container">
+
+    <header class="header-bar">
+      <div class="title-group">
+        <h1>💻 GAMESHOW TIN HỌC 12</h1>
+        <p>BÀI 8: ĐỊNH DẠNG VĂN BẢN (HTML & CSS CƠ BẢN)</p>
+      </div>
+
+      <div class="class-badge-container" title="Tên lớp được tự động nhận từ file hoặc chỉnh sửa thủ công">
+        <span class="class-badge-label">🏫 Tên Lớp:</span>
+        <input type="text" id="classNameInput" class="class-badge-input" value="12A1" placeholder="Nhập tên lớp..." />
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-pill"><span>📝</span><span id="progressIndicator">Câu 1/28</span></div>
+        <div class="stat-pill"><span>⏱️</span><span id="timerText">00:00</span></div>
+      </div>
+    </header>
+
+    <section class="control-panel">
+      <div class="control-row">
+        <div class="btn-group">
+          <button class="btn btn-outline" id="prevBtn" onclick="prevQuestion()">⬅️ Trước</button>
+          <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Tiếp ➡️</button>
+          <button class="btn btn-warning" id="hintBtn" onclick="toggleHint()">💡 Gợi ý</button>
+          <button class="btn btn-outline" onclick="openDrawerModal()">📑 DS 28 Câu</button>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-outline" id="soundToggleBtn" onclick="toggleSound()">🔊 Âm thanh</button>
+          <button class="btn btn-danger" onclick="resetCurrentQuiz()">🔄 Làm lại câu này</button>
+        </div>
+      </div>
+
+      <div class="control-row" style="border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+        <div class="btn-group">
+          <button class="btn btn-accent" onclick="openWheelModal()">🎡 Vòng quay chọn tổ</button>
+          <button class="btn btn-outline" onclick="triggerFileInput()">📂 Tải DS học sinh</button>
+          <input type="file" id="studentFileInput" accept=".xlsx,.xls,.csv,.txt" style="display:none;" onchange="handleStudentFileUpload(event)">
+        </div>
+
+        <div class="btn-group">
+          <div class="student-selector-box">
+            <label for="studentSelect" style="font-size:0.85rem; font-weight:700; color:#1e40af;">👤 Học sinh:</label>
+            <select id="studentSelect" class="student-select" onchange="onStudentChange()">
+              <option value="">-- Chọn học sinh --</option>
+            </select>
+            <button class="btn btn-outline" style="padding:4px 8px;" onclick="pickRandomStudent()" title="Bốc thăm ngẫu nhiên">🎲 Bốc thăm</button>
+            <span class="current-student-score" id="studentScoreBadge" title="Điểm tích lũy">+0 đ</span>
+          </div>
+          
+          <button class="btn btn-success" onclick="exportResultsToExcel()" title="Xuất kết quả thi ra Excel">📥 Xuất file điểm</button>
+          <button class="btn btn-outline" onclick="openScoreboardModal()">📊 Bảng điểm lớp</button>
+        </div>
+      </div>
+    </section>
+
+    <main class="quiz-card" id="quizCard">
+      <div class="question-meta">
+        <span class="badge-topic" id="questionTopic">Chủ đề</span>
+        <span class="badge-type" id="questionType">Dạng câu hỏi</span>
+      </div>
+
+      <div class="question-content" id="questionText">Đang tải câu hỏi...</div>
+
+      <div id="interactiveArea"></div>
+
+      <div class="explanation-box" id="explanationBox">
+        <div class="explanation-title" id="explanationTitle">📖 GIẢI THÍCH CHI TIẾT:</div>
+        <div class="explanation-desc" id="explanationDesc">Nội dung giải thích.</div>
+      </div>
+    </main>
+
+  </div>
+
+  <div class="modal-overlay" id="wheelModal">
+    <div class="modal-box" style="text-align: center; max-width: 480px;">
+      <div class="modal-header">
+        <h2>🎡 VÒNG QUAY MAY MẮN CHỌN TỔ</h2>
+        <button class="btn-close-modal" onclick="closeWheelModal()">✕</button>
+      </div>
+      <div class="wheel-container">
+        <div class="wheel-pointer"></div>
+        <canvas id="wheelCanvas" width="320" height="320"></canvas>
+      </div>
+      <div class="wheel-result" id="wheelResultText">Nhấn nút bên dưới để chọn tổ ngẫu nhiên!</div>
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-accent" id="spinBtn" style="font-size: 1.1rem; padding: 10px 24px;" onclick="spinWheel()">🎯 QUAY NGAY</button>
+        <button class="btn btn-outline" onclick="editTeamsPrompt()">✏️ Sửa tên Tổ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="scoreModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>📊 BẢNG XẾP HẠNG ĐIỂM SỐ - <span id="modalClassNameDisplay">12A1</span></h2>
+        <button class="btn-close-modal" onclick="closeScoreboardModal()">✕</button>
+      </div>
+      <p style="font-size:0.9rem; color:#64748b;">(Đúng +5 điểm | Sai -5 điểm. Tự động chấm điểm ngay sau khi hoàn thành)</p>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table class="scoreboard-table">
+          <thead>
+            <tr>
+              <th>Top</th>
+              <th>Họ và tên</th>
+              <th>Tổng điểm</th>
+              <th>Đúng (+5đ)</th>
+              <th>Sai (-5đ)</th>
+              <th>Số câu</th>
+            </tr>
+          </thead>
+          <tbody id="scoreboardBody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-success" onclick="exportResultsToExcel()">📥 Xuất Excel</button>
+        <button class="btn btn-outline" onclick="closeScoreboardModal()">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="drawerModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>📑 DANH SÁCH 28 CÂU HỎI BÀI 8</h2>
+        <button class="btn-close-modal" onclick="closeDrawerModal()">✕</button>
+      </div>
+      <div class="drawer-grid" id="drawerGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. CƠ SỞ DỮ LIỆU 28 CÂU HỎI TIN HỌC 12 - BÀI 8 (ĐÃ LỌC BỎ CÂU 26 VÀ 27)
+       ========================================================================= */
+    const quizQuestions = [
+      {
+        id: 1,
+        topic: "1. Thuộc tính thẻ",
+        type: "mcq",
+        question: "Cú pháp chung để khai báo một thuộc tính trong thẻ HTML là gì?",
+        options: [
+          'tên_thuộc_tính : "giá trị"',
+          'tên_thuộc_tính = "giá trị"',
+          '{tên_thuộc_tính : "giá trị"}',
+          'tên_thuộc_tính -> "giá trị"'
+        ],
+        answer: 1,
+        hint: "Tên thuộc tính kết hợp với dấu bằng.",
+        explanation: 'Cú pháp chuẩn trong HTML là: tên_thuộc_tính = "giá trị". Bổ sung thông tin và làm rõ cách xử lý của thẻ.'
+      },
+      {
+        id: 2,
+        topic: "1. Thuộc tính thẻ",
+        type: "tf",
+        question: "Các thuộc tính của thẻ HTML phải nằm trong thẻ kết thúc (thẻ đóng </...>) và được ngăn cách bằng dấu chấm phẩy.",
+        answer: false,
+        hint: "Xem vị trí đặt thuộc tính ở Mục 1 slide 6.",
+        explanation: "Sai! Thuộc tính bắt buộc phải nằm trong THẺ BẮT ĐẦU (sau tên thẻ) và các thuộc tính được ngăn cách nhau bởi DẤU CÁCH."
+      },
+      {
+        id: 3,
+        topic: "1. Thuộc tính thẻ",
+        type: "mcq",
+        question: "Quan sát đoạn mã HTML sau đây:<br><div style=\"background:#0f172a; color:#38bdf8; padding:12px 18px; border-radius:10px; font-family:Consolas, monospace; font-size:1.1rem; margin:12px 0; border:1px solid #334155;\">&lt;h2 <span style=\"color:#f43f5e; font-weight:bold;\">style</span>=<span style=\"color:#a3e635;\">\"color:red\"</span> <span style=\"color:#f43f5e; font-weight:bold;\">align</span>=<span style=\"color:#a3e635;\">\"center\"</span>&gt;Xin chào mọi người&lt;/h2&gt;</div>Trong thẻ &lt;h2&gt; trên có những thuộc tính nào được sử dụng?",
+        options: [
+          "Chỉ có thuộc tính style",
+          "Chỉ có thuộc tính align",
+          "Gồm hai thuộc tính: style và align",
+          "Không có thuộc tính nào, đó là các thẻ con"
+        ],
+        answer: 2,
+        hint: "Nhìn vào các cụm tên=giá trị nằm trong thẻ mở h2.",
+        explanation: "Thẻ <h2> ở đoạn mã trên sử dụng 2 thuộc tính: 'style' (để định dạng màu chữ đỏ) và 'align' (để căn lề giữa). Cả 2 thuộc tính nằm trong thẻ mở và được ngăn cách bởi dấu cách."
+      },
+      {
+        id: 4,
+        topic: "1. Thuộc tính thẻ",
+        type: "drag",
+        question: "Ghép đúng thẻ HTML với thuộc tính tương ứng thường đi kèm:",
+        items: [
+          { id: "i1", text: 'src = "tên_tệp_ảnh"' },
+          { id: "i2", text: 'charset = "utf-8"' },
+          { id: "i3", text: 'style = "color:red"' }
+        ],
+        targets: [
+          { id: "t1", label: "Thẻ chèn ảnh <img>", accept: "i1" },
+          { id: "t2", label: "Thẻ khai báo mã ký tự <meta>", accept: "i2" },
+          { id: "t3", label: "Thẻ đoạn văn <p>", accept: "i3" }
+        ],
+        hint: "<img> cần đường dẫn ảnh, <meta> định nghĩa bộ mã.",
+        explanation: "<img> dùng thuộc tính src; <meta> dùng thuộc tính charset; <p> dùng thuộc tính style để định dạng."
+      },
+      {
+        id: 5,
+        topic: "1. Thuộc tính thẻ",
+        type: "tf",
+        question: "Một thẻ HTML có thể không chứa thuộc tính nào hoặc chứa nhiều thuộc tính cùng lúc.",
+        answer: true,
+        hint: "Xem slide 6: Thẻ có thể có hoặc không có thuộc tính.",
+        explanation: "Đúng! Một thẻ có thể đứng độc lập không cần thuộc tính (ví dụ <p>, <hr>) hoặc chứa nhiều thuộc tính ngăn cách nhau bằng dấu cách."
+      },
+      {
+        id: 6,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "mcq",
+        question: "HTML cung cấp bao nhiêu cấp độ thẻ định dạng tiêu đề (heading)?",
+        options: ["3 cấp độ (h1 đến h3)", "5 cấp độ (h1 đến h5)", "6 cấp độ (h1 đến h6)", "Không giới hạn cấp độ"],
+        answer: 2,
+        hint: "Cú pháp <hx>...</hx> với x chạy từ mấy đến mấy?",
+        explanation: "HTML cung cấp 6 cấp độ thẻ tiêu đề: <h1> đến <h6>. Trong đó <h1> có cỡ chữ lớn nhất và <h6> có cỡ chữ nhỏ nhất."
+      },
+      {
+        id: 7,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "mcq",
+        question: "Thẻ tiêu đề nào dưới đây có kích thước hiển thị mặc định LỚN NHẤT trên trang web?",
+        options: ["Thẻ &lt;h6&gt;", "Thẻ &lt;h3&gt;", "Thẻ &lt;h1&gt;", "Thẻ &lt;h4&gt;"],
+        answer: 2,
+        hint: "Số cấp độ càng nhỏ thì độ ưu tiên và kích thước font chữ càng lớn.",
+        explanation: "Thẻ <h1> đại diện cho tiêu đề bậc 1, có kích thước chữ hiển thị mặc định lớn nhất và quan trọng nhất trong trang web."
+      },
+      {
+        id: 8,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "drag",
+        question: "Ghép các thẻ định dạng trình bày với chức năng tương ứng (Hãy kéo thả đủ cả 4 thẻ):",
+        items: [
+          { id: "i1", text: "<p> ... </p>" },
+          { id: "i2", text: "<div> ... </div>" },
+          { id: "i3", text: "<span> ... </span>" },
+          { id: "i4", text: "<hr>" }
+        ],
+        targets: [
+          { id: "t1", label: "Đoạn văn, có khoảng trống trước/sau", accept: "i1" },
+          { id: "t2", label: "Khối văn bản (block)", accept: "i2" },
+          { id: "t3", label: "Khối văn bản nội dòng (inline) quy mô nhỏ", accept: "i3" },
+          { id: "t4", label: "Đường kẻ ngang phân tách", accept: "i4" }
+        ],
+        hint: "Xem bảng mô tả thẻ ở slide 11.",
+        explanation: "<p> tạo đoạn văn; <div> tạo khối dữ liệu block; <span> tạo vùng inline quy mô nhỏ; <hr> chèn đường kẻ ngang."
+      },
+      {
+        id: 9,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "tf",
+        question: "Thẻ <br> và thẻ <hr> là các thẻ đơn (thẻ rỗng), không cần thẻ đóng tương ứng.",
+        answer: true,
+        hint: "Các thẻ ngắt dòng và kẻ ngang không bọc nội dung văn bản bên trong.",
+        explanation: "Đúng! <br> (ngắt dòng) và <hr> (kẻ ngang) là các thẻ rỗng, không chứa nội dung nên không cần thẻ đóng."
+      },
+      {
+        id: 10,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "mcq",
+        question: "Sự khác biệt chính giữa thẻ &lt;p&gt; và thẻ &lt;br&gt; trong việc xuống dòng là gì?",
+        options: [
+          "Thẻ <br> tạo khoảng cách giữa các dòng lớn hơn thẻ <p>",
+          "Thẻ <p> tạo khoảng cách trước và sau đoạn lớn hơn so với khoảng cách dòng do thẻ <br> tạo ra",
+          "Thẻ <br> đổi màu chữ, thẻ <p> không đổi màu chữ",
+          "Thẻ <p> không tự động xuống dòng"
+        ],
+        answer: 1,
+        hint: "Xem phần trả lời câu hỏi 1 ở slide 12.",
+        explanation: "Thẻ <p> dùng để tách đoạn nên có thêm lề trống (margin) trên và dưới, do đó khoảng cách lớn hơn khoảng cách xuống dòng đơn thuần của thẻ <br>."
+      },
+      {
+        id: 11,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "mcq",
+        question: "Khi thực thi đoạn mã: &lt;p&gt;Học tốt &lt;br&gt; Tin học 12&lt;/p&gt;, văn bản sẽ được hiển thị thành mấy dòng?",
+        options: ["1 dòng duy nhất", "2 dòng", "3 dòng", "Bị lỗi cú pháp"],
+        answer: 1,
+        hint: "Thẻ <br> sẽ bẻ dòng văn bản ngay tại vị trí đặt nó.",
+        explanation: "Thẻ <br> ngắt dòng nội dung bên trong đoạn văn <p>, do đó văn bản hiển thị thành 2 dòng: 'Học tốt' và 'Tin học 12'."
+      },
+      {
+        id: 12,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "tf",
+        question: "Thẻ <span> là phần tử dạng khối (block), khi xuất hiện sẽ tự động ngắt xuống một dòng mới hoàn toàn.",
+        answer: false,
+        hint: "Xem lại bảng slide 11: span là inline hay block?",
+        explanation: "Sai! <span> là phần tử nội dòng (inline), nó chỉ tác động lên quy mô nhỏ bên trong dòng văn bản mà không làm ngắt dòng."
+      },
+      {
+        id: 13,
+        topic: "2. Các thẻ định dạng trình bày",
+        type: "mcq",
+        question: "Để phân tách giữa dòng tiêu đề 'Tin học 12' và nội dung phía dưới bằng một đường kẻ ngang, ta dùng thẻ nào?",
+        options: ["Thẻ &lt;br&gt;", "Thẻ &lt;line&gt;", "Thẻ &lt;hr&gt;", "Thẻ &lt;border&gt;"],
+        answer: 2,
+        hint: "Xem bài tập ví dụ 2 ở slide 13.",
+        explanation: "Thẻ <hr> (horizontal rule) dùng để tạo một đường kẻ ngang phân tách trên trang web."
+      },
+      {
+        id: 14,
+        topic: "3. Thẻ định dạng kiểu chữ",
+        type: "drag",
+        question: "Ghép các thẻ HTML sau với kiểu hiển thị văn bản tương ứng (Hãy kéo thả đủ cả 4 thẻ):",
+        items: [
+          { id: "i1", text: "<strong> hoặc <b>" },
+          { id: "i2", text: "<em> hoặc <i>" },
+          { id: "i3", text: "<u>" },
+          { id: "i4", text: "<del>" }
+        ],
+        targets: [
+          { id: "t1", label: "Chữ in đậm", accept: "i1" },
+          { id: "t2", label: "Chữ in nghiêng", accept: "i2" },
+          { id: "t3", label: "Gạch chân văn bản", accept: "i3" },
+          { id: "t4", label: "Nét gạch giữa chữ (đánh dấu xóa)", accept: "i4" }
+        ],
+        hint: "Xem bảng định dạng kiểu chữ ở slide 16.",
+        explanation: "b/strong: in đậm; i/em: in nghiêng; u: gạch chân; del: gạch ngang thân chữ (strikethrough)."
+      },
+      {
+        id: 15,
+        topic: "3. Thẻ định dạng kiểu chữ",
+        type: "mcq",
+        question: "Thẻ nào sau đây được dùng để đánh dấu (highlight) văn bản với màu nền nổi bật mặc định?",
+        options: ["Thẻ &lt;color&gt;", "Thẻ &lt;mark&gt;", "Thẻ &lt;highlight&gt;", "Thẻ &lt;yellow&gt;"],
+        answer: 1,
+        hint: "Xem slide 16: Thẻ đánh dấu.",
+        explanation: "Thẻ <mark> dùng để đánh dấu làm nổi bật từ/cụm từ (mặc định nền màu vàng)."
+      },
+      {
+        id: 16,
+        topic: "3. Thẻ định dạng kiểu chữ",
+        type: "mcq",
+        question: "Để viết công thức toán học ax² + bx + c = 0, chỉ số mũ 2 cần được đặt trong thẻ nào?",
+        options: [
+          "Đặt trong thẻ chỉ số dưới &lt;sub&gt;2&lt;/sub&gt;",
+          "Đặt trong thẻ chỉ số trên &lt;sup&gt;2&lt;/sup&gt;",
+          "Đặt trong thẻ &lt;up&gt;2&lt;/up&gt;",
+          "Đặt trong thẻ &lt;pow&gt;2&lt;/pow&gt;"
+        ],
+        answer: 1,
+        hint: "Superscript (chỉ số trên) hay Subscript (chỉ số dưới)?",
+        explanation: "Thẻ <sup> (superscript) tạo chỉ số trên như x², còn thẻ <sub> (subscript) tạo chỉ số dưới như B₁."
+      },
+      {
+        id: 17,
+        topic: "3. Thẻ định dạng kiểu chữ",
+        type: "mcq",
+        question: "Để viết ký hiệu các bước B₁, B₂, B₃ trong thuật toán, các chỉ số 1, 2, 3 được đặt trong thẻ nào?",
+        options: [
+          "Thẻ chỉ số trên &lt;sup&gt;",
+          "Thẻ chỉ số dưới &lt;sub&gt;",
+          "Thẻ chữ nhỏ &lt;small&gt;",
+          "Thẻ &lt;down&gt;"
+        ],
+        answer: 1,
+        hint: "Xem nhiệm vụ thực hành phương trình bậc 2 ở slide 25.",
+        explanation: "Thẻ <sub> dùng để tạo chỉ số dưới như B₁, B₂, B₃."
+      },
+      {
+        id: 18,
+        topic: "3. Thẻ định dạng kiểu chữ",
+        type: "tf",
+        question: "Cả hai thẻ <strong> và <b> đều làm chữ in đậm, nhưng <strong> mang ý nghĩa nhấn mạnh tầm quan trọng của nội dung hơn.",
+        answer: true,
+        hint: "Xem phần luyện tập 1 ở slide 27.",
+        explanation: "Đúng! Thẻ <b> đơn thuần chỉ là định dạng hiển thị đậm, còn <strong> mang ngữ nghĩa nhấn mạnh nội dung đối với trình duyệt và công cụ đọc."
+      },
+      {
+        id: 19,
+        topic: "3. Định dạng phông chữ (CSS style)",
+        type: "mcq",
+        question: "Đặc tính CSS nào trong thuộc tính style dùng để thiết lập phông chữ (kiểu phông) cho đoạn văn bản?",
+        options: ["font-style", "font-family", "text-font", "font-weight"],
+        answer: 1,
+        hint: "Ví dụ: style=\"font-family: Arial;\"",
+        explanation: "Đặc tính 'font-family' được dùng để quy định phông chữ (như Arial, Tahoma, Times New Roman...)."
+      },
+      {
+        id: 20,
+        topic: "3. Định dạng phông chữ (CSS style)",
+        type: "mcq",
+        question: "Đặc tính CSS nào sau đây dùng để thiết lập màu chữ cho phần tử văn bản?",
+        options: ["background-color", "text-color", "color", "font-color"],
+        answer: 2,
+        hint: "Xem slide 17 và 18: style=\"color: red;\"",
+        explanation: "Trong CSS/HTML, thuộc tính 'color' quy định màu của chữ (font color)."
+      },
+      {
+        id: 21,
+        topic: "3. Định dạng phông chữ (CSS style)",
+        type: "drag",
+        question: "Ghép các giá trị của đặc tính căn lề text-align với ý nghĩa tương ứng (Hãy kéo thả đủ cả 4 thẻ):",
+        items: [
+          { id: "i1", text: "text-align: left" },
+          { id: "i2", text: "text-align: right" },
+          { id: "i3", text: "text-align: center" },
+          { id: "i4", text: "text-align: justify" }
+        ],
+        targets: [
+          { id: "t1", label: "Căn lề trái", accept: "i1" },
+          { id: "t2", label: "Căn lề phải", accept: "i2" },
+          { id: "t3", label: "Căn lề giữa", accept: "i3" },
+          { id: "t4", label: "Căn đều 2 bên", accept: "i4" }
+        ],
+        hint: "Xem slide 22 về căn lề văn bản.",
+        explanation: "left: căn trái; right: căn phải; center: căn giữa; justify: căn đều 2 bên mép văn bản."
+      },
+      {
+        id: 22,
+        topic: "3. Định dạng phông chữ (CSS style)",
+        type: "mcq",
+        question: "Trong hệ mã màu Hex, mã màu #FF0000 đại diện cho màu sắc nào?",
+        options: ["Màu xanh lá (Green)", "Màu đỏ (Red)", "Màu xanh lam (Blue)", "Màu vàng (Yellow)"],
+        answer: 1,
+        hint: "Hai ký tự đầu đại diện cho Red (R).",
+        explanation: "#FF0000 có kênh Red đạt cực đại (FF) và hai kênh Green, Blue là 00, do đó đây là màu Đỏ nguyên bản."
+      },
+      {
+        id: 23,
+        topic: "3. Định dạng phông chữ (CSS style)",
+        type: "tf",
+        question: "Giá trị color: rgb(255,0,0) và color: #FF0000 cùng hiển thị ra màu Đỏ.",
+        answer: true,
+        hint: "Xem bảng mã màu RGB và Hex ở slide 19.",
+        explanation: "Đúng! Cả hai cách viết đều quy định giá trị kênh Red là 255 (FF), Green là 0, Blue là 0 nên cùng là màu Đỏ."
+      },
+      {
+        id: 24,
+        topic: "3. Định dạng phông chữ (CSS style)",
+        type: "mcq",
+        question: "Để tạo một đường gạch ngang ở phía TRÊN đầu văn bản, ta dùng giá trị text-decoration nào?",
+        options: ["underline", "overline", "line-through", "underline overline"],
+        answer: 1,
+        hint: "Over là phía trên.",
+        explanation: "text-decoration: overline tạo nét kẻ phía trên đầu; underline là dưới chân; line-through là gạch ngang giữa thân chữ."
+      },
+      {
+        id: 25,
+        topic: "4. So sánh & Thực hành định dạng",
+        type: "mcq",
+        question: "Quan sát hai đoạn mã định dạng văn bản sau (Slide 24):<br><div style=\"background:#0f172a; color:#38bdf8; padding:12px 16px; border-radius:10px; font-family:Consolas, monospace; font-size:1.02rem; margin:10px 0; border:1px solid #334155; line-height:1.7;\"><strong style=\"color:#f59e0b;\">Kiểu 1:</strong> &lt;p style=\"<span style=\"color:#f43f5e;\">color:red</span>; font-family: Tahoma; <span style=\"color:#a3e635;\">font-size:15px</span>; <span style=\"color:#c084fc;\">text-decoration:underline</span>\"&gt;Nội dung&lt;/p&gt;<br><strong style=\"color:#f59e0b;\">Kiểu 2:</strong> &lt;p style=\"<span style=\"color:#f43f5e;\">color:rgb(255,0,0)</span>; font-family: Tahoma; <span style=\"color:#a3e635;\">font-size:10px</span>\"&gt;Nội dung&lt;/p&gt;</div>So sánh kết quả hiển thị giữa Kiểu 1 và Kiểu 2, nhận xét nào sau đây là <strong>ĐÚNG NHẤT</strong>?",
+        options: [
+          "Cả hai kiểu có màu sắc hiển thị khác nhau (một màu đỏ, một màu khác)",
+          "Hai kiểu CÙNG MÀU ĐỎ và phông chữ Tahoma; nhưng Kiểu 1 có chữ to hơn (15px so với 10px) và có thêm gạch chân",
+          "Kiểu 2 có cỡ chữ lớn hơn Kiểu 1 và có đường gạch chân",
+          "Hai kiểu hoàn toàn giống nhau về mọi thuộc tính hiển thị"
+        ],
+        answer: 1,
+        hint: "color:red và color:rgb(255,0,0) cùng là màu đỏ. Hãy so sánh font-size và text-decoration.",
+        explanation: "Theo slide 24 SGK: Giống nhau: cùng màu sắc (đều là màu đỏ) và cùng phông Tahoma. Khác nhau: Kiểu 1 có cỡ chữ to hơn (15px so với 10px) và có thêm đường gạch chân (text-decoration: underline)."
+      },
+      {
+        id: 26,
+        topic: "4. So sánh & Thực hành định dạng",
+        type: "mcq",
+        question: "Để tạo hiệu ứng các số 0 xếp lượn sóng nhấp nhô theo hình sin (Vận dụng 2, slide 31), người ta lồng ghép các thẻ nào lặp lại nhiều lần?",
+        options: [
+          "Lồng ghép liên tiếp các thẻ chỉ số trên &lt;sup&gt;",
+          "Dùng thẻ &lt;table&gt; chia cột",
+          "Dùng thẻ &lt;hr&gt; gấp khúc",
+          "Dùng thẻ &lt;h1&gt; lồng trong &lt;h6&gt;"
+        ],
+        answer: 0,
+        hint: "Xem đoạn mã 0<sup>0<sup>0...</sup></sup> ở slide 31.",
+        explanation: "Việc lồng thẻ chỉ số trên <sup> liên tục đưa các ký tự 0 dâng cao dần tạo thành hình đỉnh sóng lượn nhấp nhô độc đáo."
+      },
+      {
+        id: 27,
+        topic: "4. So sánh & Thực hành định dạng",
+        type: "tf",
+        question: "Trong thẻ <p>, ta có thể gộp nhiều đặc tính CSS trong cùng thuộc tính style, mỗi đặc tính được ngăn cách nhau bởi dấu chấm phẩy (;).",
+        answer: true,
+        hint: "Ví dụ: style=\"color:red; font-size:20px; text-align:center;\"",
+        explanation: "Đúng! Cú pháp CSS quy định các cặp thuộc tính:giá trị trong style ngăn cách nhau bởi dấu chấm phẩy (;)."
+      },
+      {
+        id: 28,
+        topic: "4. So sánh & Thực hành định dạng",
+        type: "mcq",
+        question: "Ý nghĩa tổng quát cốt lõi nhất của Bài 8: Định dạng văn bản là gì?",
+        options: [
+          "Chỉ giúp lập trình viên viết được các chữ cái in đậm và in nghiêng",
+          "Biết cách kết hợp thẻ HTML và các đặc tính style để định dạng cấu trúc, bố cục, phông chữ và thẩm mỹ cho trang web",
+          "Giúp máy tính khởi động nhanh hơn khi lướt web",
+          "Học cách vẽ đồ họa 3D phức tạp trên trình duyệt"
+        ],
+        answer: 1,
+        hint: "Đánh giá mục tiêu chung của toàn bộ bài học định dạng văn bản.",
+        explanation: "Bài học cung cấp kiến thức nền tảng về tổ chức bố cục văn bản (tiêu đề, khối, đoạn) và thiết lập thẩm mỹ (kiểu chữ, màu sắc, phông chữ, căn lề) qua HTML & CSS."
+      }
+    ];
+
+    /* =========================================================================
+       2. QUẢN LÝ DỮ LIỆU & ĐIỂM SỐ
+       ========================================================================= */
+    let students = [
+      { id: 1, name: "Nguyễn Văn An", score: 0, correct: 0, wrong: 0, attempts: 0 },
+      { id: 2, name: "Trần Thị Bích", score: 0, correct: 0, wrong: 0, attempts: 0 },
+      { id: 3, name: "Lê Hoàng Dũng", score: 0, correct: 0, wrong: 0, attempts: 0 },
+      { id: 4, name: "Phạm Thúy Hằng", score: 0, correct: 0, wrong: 0, attempts: 0 },
+      { id: 5, name: "Võ Minh Khôi", score: 0, correct: 0, wrong: 0, attempts: 0 },
+      { id: 6, name: "Đỗ Mai Linh", score: 0, correct: 0, wrong: 0, attempts: 0 }
+    ];
+
+    let currentStudentId = "";
+    let questionAnswersHistory = {};
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let soundEnabled = true;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    function extractClassNameFromFileName(fileName) {
+      if (!fileName) return "";
+      const baseName = fileName.replace(/\.[^/.]+$/, "");
+      const match = baseName.match(/(?:Lớp|Lop|Class)?\s*([1-9][0-2]?\s*[A-Za-z0-9_/-]+)/i);
+      if (match && match[1]) {
+        return match[1].trim().toUpperCase().replace(/\s+/g, "");
+      }
+      return baseName.trim();
+    }
+
+    function triggerFileInput() {
+      document.getElementById('studentFileInput').click();
+    }
+
+    function handleStudentFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const detectedClassName = extractClassNameFromFileName(file.name);
+      if (detectedClassName) {
+        document.getElementById('classNameInput').value = detectedClassName;
+        playSound('success');
+      }
+
+      const fileName = file.name.toLowerCase();
+      const reader = new FileReader();
+
+      if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        reader.onload = function(evt) {
+          try {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            let importedNames = [];
+            jsonRows.forEach(row => {
+              if (Array.isArray(row)) {
+                row.forEach(cell => {
+                  if (typeof cell === 'string') {
+                    const clean = cell.trim();
+                    if (clean.length > 2 && !/^(STT|Họ và tên|Họ tên|Tên|Điểm|Ghi chú|Lớp|Nam|Nữ|Ngày sinh)$/i.test(clean)) {
+                      if (/^[A-ZÀ-Ỹa-zà-ỹ\s]+$/.test(clean) && clean.split(' ').length >= 2) {
+                        importedNames.push(clean);
+                      }
+                    }
+                  }
+                });
+              }
+            });
+
+            if (importedNames.length === 0) {
+              jsonRows.forEach((row, idx) => {
+                if (idx > 0 && row[1] && typeof row[1] === 'string' && row[1].trim().length > 2) {
+                  importedNames.push(row[1].trim());
+                }
+              });
+            }
+            populateStudentList(importedNames, detectedClassName);
+          } catch (err) {
+            alert("Lỗi khi đọc file Excel!");
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = function(evt) {
+          const content = evt.target.result;
+          const lines = content.split(/\r?\n/);
+          let importedNames = [];
+          lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed && !/^(STT|Họ và tên|Họ tên)$/i.test(trimmed)) {
+              const parts = trimmed.split(',');
+              const namePart = parts.length > 1 ? parts[1].trim() : parts[0].trim();
+              if (namePart) importedNames.push(namePart);
+            }
+          });
+          populateStudentList(importedNames, detectedClassName);
+        };
+        reader.readAsText(file, "UTF-8");
+      }
+      e.target.value = '';
+    }
+
+    function populateStudentList(nameList, detectedClassName) {
+      const uniqueNames = [...new Set(nameList.filter(n => n.length > 1))];
+      if (uniqueNames.length === 0) {
+        alert("Không nhận diện được danh sách họ tên trong file!");
+        return;
+      }
+
+      students = uniqueNames.map((name, index) => ({
+        id: index + 1,
+        name: name,
+        score: 0,
+        correct: 0,
+        wrong: 0,
+        attempts: 0
+      }));
+
+      refreshStudentSelectDropdown();
+      alert(`🎉 Đã tải ${students.length} học sinh!\n🏫 Lớp: "${detectedClassName || document.getElementById('classNameInput').value}"`);
+    }
+
+    function refreshStudentSelectDropdown() {
+      const select = document.getElementById('studentSelect');
+      const prevVal = select.value;
+      select.innerHTML = '<option value="">-- Chọn học sinh --</option>';
+
+      students.forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st.id;
+        opt.textContent = `${st.name} (${st.score >= 0 ? '+' : ''}${st.score}đ)`;
+        select.appendChild(opt);
+      });
+
+      if (prevVal && students.some(s => s.id == prevVal)) {
+        select.value = prevVal;
+      }
+      updateScoreBadge();
+    }
+
+    function onStudentChange() {
+      currentStudentId = document.getElementById('studentSelect').value;
+      updateScoreBadge();
+    }
+
+    function updateScoreBadge() {
+      const badge = document.getElementById('studentScoreBadge');
+      if (!currentStudentId) {
+        badge.textContent = "+0 đ";
+        badge.style.color = "var(--accent)";
+        return;
+      }
+      const st = students.find(s => s.id == currentStudentId);
+      if (st) {
+        badge.textContent = `${st.score >= 0 ? '+' : ''}${st.score} đ`;
+        badge.style.color = st.score >= 0 ? "#059669" : "#dc2626";
+      }
+    }
+
+    function pickRandomStudent() {
+      if (students.length === 0) return;
+      playSound('click');
+      const select = document.getElementById('studentSelect');
+      
+      let count = 0;
+      const interval = setInterval(() => {
+        const rand = Math.floor(Math.random() * students.length);
+        select.value = students[rand].id;
+        count++;
+        if (count > 15) {
+          clearInterval(interval);
+          currentStudentId = select.value;
+          updateScoreBadge();
+          playSound('success');
+          const chosen = students.find(s => s.id == currentStudentId);
+          alert(`🎯 Xin mời bạn: [ ${chosen.name} ] trả lời!`);
+        }
+      }, 80);
+    }
+
+    function recordStudentResult(isCorrect) {
+      const q = quizQuestions[currentQuestionIndex];
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN') + " " + now.toLocaleDateString('vi-VN');
+      const delta = isCorrect ? 5 : -5;
+
+      let studentName = "Chưa gán tên HS";
+      if (currentStudentId) {
+        const st = students.find(s => s.id == currentStudentId);
+        if (st) {
+          st.score += delta;
+          st.attempts += 1;
+          if (isCorrect) st.correct += 1;
+          else st.wrong += 1;
+          studentName = st.name;
+        }
+      }
+
+      questionAnswersHistory[q.id] = {
+        questionId: q.id,
+        topic: q.topic,
+        question: q.question,
+        studentName: studentName,
+        result: isCorrect ? "ĐÚNG" : "SAI",
+        delta: delta,
+        time: timeStr
+      };
+
+      spawnFloatingScore(delta);
+      refreshStudentSelectDropdown();
+    }
+
+    function spawnFloatingScore(delta) {
+      const card = document.getElementById('quizCard');
+      const floater = document.createElement('div');
+      floater.className = `floating-score ${delta > 0 ? 'score-plus' : 'score-minus'}`;
+      floater.textContent = `${delta > 0 ? '+5' : '-5'} Điểm`;
+      floater.style.left = '50%';
+      floater.style.top = '35%';
+      floater.style.transform = 'translate(-50%, -50%)';
+      card.appendChild(floater);
+
+      setTimeout(() => { floater.remove(); }, 1200);
+    }
+
+    /* =========================================================================
+       3. HIỂN THỊ CÂU HỎI & XỬ LÝ CHỌN ĐÁP ÁN
+       ========================================================================= */
+    function renderQuestion(index) {
+      const q = quizQuestions[index];
+      document.getElementById('questionTopic').textContent = q.topic;
+      document.getElementById('progressIndicator').textContent = `Câu ${index + 1}/${quizQuestions.length}`;
+      
+      const typeBadge = document.getElementById('questionType');
+      if (q.type === 'mcq') typeBadge.textContent = "Trắc nghiệm 4 lựa chọn";
+      else if (q.type === 'tf') typeBadge.textContent = "Đúng hay Sai?";
+      else typeBadge.textContent = "Kéo thả phân nhóm";
+
+      document.getElementById('questionText').innerHTML = `Câu ${q.id}: ${q.question.replace(/\n/g, '<br>')}`;
+
+      const area = document.getElementById('interactiveArea');
+      area.innerHTML = '';
+
+      const explBox = document.getElementById('explanationBox');
+      explBox.classList.remove('show');
+
+      const savedAns = userAnswers[q.id];
+
+      // 1. Trắc nghiệm
+      if (q.type === 'mcq') {
+        const grid = document.createElement('div');
+        grid.className = 'options-grid';
+        const prefixes = ['A', 'B', 'C', 'D'];
+
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'option-btn';
+          
+          if (savedAns !== undefined) {
+            btn.classList.add('locked');
+            if (idx === q.answer) {
+              btn.classList.add('correct');
+            } else if (idx === savedAns.selected) {
+              btn.classList.add('wrong');
+            }
+          }
+
+          btn.innerHTML = `<span class="option-prefix">${prefixes[idx]}</span><span>${opt}</span>`;
+          btn.onclick = () => {
+            if (!userAnswers[q.id]) handleInstantSelectMcq(idx);
+          };
+          grid.appendChild(btn);
+        });
+        area.appendChild(grid);
+      }
+      // 2. Đúng / Sai
+      else if (q.type === 'tf') {
+        const tfContainer = document.createElement('div');
+        tfContainer.className = 'tf-container';
+
+        const trueBtn = document.createElement('button');
+        trueBtn.className = 'tf-btn tf-btn-true';
+        trueBtn.innerHTML = `<span style="font-size:2.2rem;">👍</span><span>ĐÚNG</span>`;
+
+        const falseBtn = document.createElement('button');
+        falseBtn.className = 'tf-btn tf-btn-false';
+        falseBtn.innerHTML = `<span style="font-size:2.2rem;">👎</span><span>SAI</span>`;
+
+        if (savedAns !== undefined) {
+          trueBtn.classList.add('locked');
+          falseBtn.classList.add('locked');
+
+          if (q.answer === true) {
+            trueBtn.classList.add('tf-correct');
+            if (savedAns.selected === false) falseBtn.classList.add('tf-wrong');
+          } else {
+            falseBtn.classList.add('tf-correct');
+            if (savedAns.selected === true) trueBtn.classList.add('tf-wrong');
+          }
+        }
+
+        trueBtn.onclick = () => {
+          if (!userAnswers[q.id]) handleInstantSelectTf(true);
+        };
+        falseBtn.onclick = () => {
+          if (!userAnswers[q.id]) handleInstantSelectTf(false);
+        };
+
+        tfContainer.appendChild(trueBtn);
+        tfContainer.appendChild(falseBtn);
+        area.appendChild(tfContainer);
+      }
+      // 3. Kéo thả ghép nhóm (Kéo thả đủ 100% mới chấm điểm)
+      else if (q.type === 'drag') {
+        const dragZone = document.createElement('div');
+        dragZone.className = 'drag-zone';
+
+        let assignments = savedAns ? savedAns.assignments : {};
+
+        const pool = document.createElement('div');
+        pool.className = 'drag-items-pool';
+        pool.id = 'dragPool';
+        if (!savedAns || !savedAns.isFinished) {
+          pool.setAttribute('ondragover', 'event.preventDefault()');
+          pool.setAttribute('ondrop', 'handleDropToPool(event)');
+        }
+
+        const targetsGrid = document.createElement('div');
+        targetsGrid.className = 'drop-targets-grid';
+
+        q.targets.forEach(tgt => {
+          const tgtCard = document.createElement('div');
+          tgtCard.className = 'drop-target-card';
+          tgtCard.id = `target_${tgt.id}`;
+          if (!savedAns || !savedAns.isFinished) {
+            tgtCard.setAttribute('ondragover', 'handleDragOver(event)');
+            tgtCard.setAttribute('ondragleave', 'handleDragLeave(event)');
+            tgtCard.setAttribute('ondrop', `handleDropToTarget(event, '${tgt.id}')`);
+          }
+
+          tgtCard.innerHTML = `<div class="drop-target-title">📌 ${tgt.label}</div><div class="drop-slots-area" id="slot_${tgt.id}"></div>`;
+          targetsGrid.appendChild(tgtCard);
+        });
+
+        dragZone.appendChild(pool);
+        dragZone.appendChild(targetsGrid);
+        area.appendChild(dragZone);
+
+        q.items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'drag-card';
+          card.id = `dragItem_${item.id}`;
+          if (!savedAns || !savedAns.isFinished) {
+            card.draggable = true;
+            card.setAttribute('ondragstart', `handleDragStart(event, '${item.id}')`);
+            card.setAttribute('ondragend', 'handleDragEnd(event)');
+          } else {
+            card.style.cursor = 'default';
+          }
+          card.textContent = item.text;
+
+          const assignedTarget = assignments[item.id];
+          if (assignedTarget) {
+            const slot = document.getElementById(`slot_${assignedTarget}`);
+            if (slot) slot.appendChild(card);
+            else pool.appendChild(card);
+          } else {
+            pool.appendChild(card);
+          }
+        });
+      }
+
+      if (savedAns && (savedAns.isCorrect !== undefined)) {
+        showExplanation(savedAns.isCorrect);
+      }
+    }
+
+    function handleInstantSelectMcq(selectedIdx) {
+      const q = quizQuestions[currentQuestionIndex];
+      const isCorrect = (selectedIdx === q.answer);
+
+      userAnswers[q.id] = { selected: selectedIdx, isCorrect: isCorrect };
+
+      if (isCorrect) {
+        playSound('correct');
+        triggerConfetti();
+      } else {
+        playSound('wrong');
+      }
+
+      recordStudentResult(isCorrect);
+      renderQuestion(currentQuestionIndex);
+    }
+
+    function handleInstantSelectTf(selectedVal) {
+      const q = quizQuestions[currentQuestionIndex];
+      const isCorrect = (selectedVal === q.answer);
+
+      userAnswers[q.id] = { selected: selectedVal, isCorrect: isCorrect };
+
+      if (isCorrect) {
+        playSound('correct');
+        triggerConfetti();
+      } else {
+        playSound('wrong');
+      }
+
+      recordStudentResult(isCorrect);
+      renderQuestion(currentQuestionIndex);
+    }
+
+    /* XỬ LÝ KÉO THẢ */
+    let draggedItemId = null;
+    function handleDragStart(e, id) {
+      draggedItemId = id;
+      e.dataTransfer.setData('text/plain', id);
+      e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.drop-target-card').forEach(c => c.classList.remove('highlight'));
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('highlight');
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('highlight');
+    }
+
+    function handleDropToTarget(e, targetId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('highlight');
+      if (!draggedItemId) return;
+
+      const q = quizQuestions[currentQuestionIndex];
+      if (!userAnswers[q.id]) userAnswers[q.id] = { assignments: {}, isFinished: false };
+      userAnswers[q.id].assignments[draggedItemId] = targetId;
+
+      playSound('click');
+
+      // CHỈ KHI KÉO HẾT 100% SỐ THẺ MỚI CHẤM ĐIỂM
+      const assignedCount = Object.keys(userAnswers[q.id].assignments).length;
+      if (assignedCount === q.items.length) {
+        userAnswers[q.id].isFinished = true;
+        let isCorrect = true;
+        q.targets.forEach(tgt => {
+          const acceptedArr = tgt.accept.split(',');
+          acceptedArr.forEach(itemId => {
+            if (userAnswers[q.id].assignments[itemId] !== tgt.id) isCorrect = false;
+          });
+        });
+
+        userAnswers[q.id].isCorrect = isCorrect;
+
+        if (isCorrect) {
+          playSound('correct');
+          triggerConfetti();
+        } else {
+          playSound('wrong');
+        }
+
+        recordStudentResult(isCorrect);
+      }
+
+      renderQuestion(currentQuestionIndex);
+    }
+
+    function handleDropToPool(e) {
+      e.preventDefault();
+      if (!draggedItemId) return;
+      const q = quizQuestions[currentQuestionIndex];
+      if (userAnswers[q.id] && userAnswers[q.id].assignments) {
+        delete userAnswers[q.id].assignments[draggedItemId];
+      }
+      playSound('click');
+      renderQuestion(currentQuestionIndex);
+    }
+
+    function showExplanation(isCorrect) {
+      const q = quizQuestions[currentQuestionIndex];
+      const box = document.getElementById('explanationBox');
+      const title = document.getElementById('explanationTitle');
+      const desc = document.getElementById('explanationDesc');
+
+      title.innerHTML = isCorrect ? "🎉 CHÍNH XÁC! (+5 ĐIỂM)" : "❌ CHƯA CHÍNH XÁC! (-5 ĐIỂM)";
+      title.style.color = isCorrect ? "#059669" : "#dc2626";
+      desc.textContent = q.explanation;
+      box.classList.add('show');
+    }
+
+    function toggleHint() {
+      const q = quizQuestions[currentQuestionIndex];
+      alert(`💡 GỢI Ý CÂU HỎI:\n\n${q.hint}`);
+      playSound('click');
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        playSound('click');
+        renderQuestion(currentQuestionIndex);
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+        currentQuestionIndex++;
+        playSound('click');
+        renderQuestion(currentQuestionIndex);
+      } else {
+        alert("Đây là câu hỏi cuối cùng của bài học!");
+      }
+    }
+
+    function resetCurrentQuiz() {
+      if (confirm("Làm lại câu hỏi này từ đầu?")) {
+        const q = quizQuestions[currentQuestionIndex];
+        delete userAnswers[q.id];
+        renderQuestion(currentQuestionIndex);
+      }
+    }
+
+    /* =========================================================================
+       4. XUẤT FILE EXCEL
+       ========================================================================= */
+    function exportResultsToExcel() {
+      const currentClassName = document.getElementById('classNameInput').value.trim() || "12A1";
+      const now = new Date();
+      const dateFormatted = `${now.getDate()}_${now.getMonth() + 1}_${now.getFullYear()}`;
+
+      const sortedStudents = [...students].sort((a, b) => b.score - a.score);
+      const summaryData = [
+        ["BẢNG KẾT QUẢ ĐIỂM SỐ TIN HỌC 12 - BÀI 8"],
+        [`LỚP: ${currentClassName}`, `NGÀY XUẤT BÁO CÁO: ${now.toLocaleDateString('vi-VN')} ${now.toLocaleTimeString('vi-VN')}`],
+        [],
+        ["STT", "Họ và Tên Học Sinh", "Tổng Điểm", "Số Câu Đúng (+5đ)", "Số Câu Sai (-5đ)", "Tổng Lượt Trả Lời"]
+      ];
+
+      sortedStudents.forEach((st, idx) => {
+        summaryData.push([
+          idx + 1,
+          st.name,
+          st.score,
+          st.correct,
+          st.wrong,
+          st.attempts
+        ]);
+      });
+
+      const detailData = [
+        ["NHẬT KÝ CHI TIẾT TRẢ LỜI CÂU HỎI"],
+        [`Lớp: ${currentClassName}`, `Ngày: ${now.toLocaleDateString('vi-VN')}`],
+        [],
+        ["Câu số", "Nội dung kiến thức", "Nội dung câu hỏi", "Học sinh trả lời", "Kết quả", "Điểm", "Thời gian"]
+      ];
+
+      quizQuestions.forEach(q => {
+        const hist = questionAnswersHistory[q.id];
+        if (hist) {
+          detailData.push([
+            q.id,
+            q.topic,
+            q.question.replace(/<[^>]*>?/gm, ''),
+            hist.studentName,
+            hist.result,
+            hist.delta > 0 ? "+5" : "-5",
+            hist.time
+          ]);
+        } else {
+          detailData.push([
+            q.id,
+            q.topic,
+            q.question.replace(/<[^>]*>?/gm, ''),
+            "(Chưa trả lời)",
+            "-",
+            "0",
+            "-"
+          ]);
+        }
+      });
+
+      const wb = XLSX.utils.book_new();
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+      const wsDetail = XLSX.utils.aoa_to_sheet(detailData);
+
+      wsSummary['!cols'] = [{ wch: 6 }, { wch: 28 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+      wsDetail['!cols'] = [{ wch: 8 }, { wch: 28 }, { wch: 45 }, { wch: 25 }, { wch: 12 }, { wch: 10 }, { wch: 22 }];
+
+      XLSX.utils.book_append_sheet(wb, wsSummary, "Bảng Điểm Lớp");
+      XLSX.utils.book_append_sheet(wb, wsDetail, "Chi Tiết Trả Lời");
+
+      const exportFileName = `Ket_Qua_Tin12_Bai8_${currentClassName}_${dateFormatted}.xlsx`;
+      XLSX.writeFile(wb, exportFileName);
+      playSound('success');
+      alert(`✅ Đã xuất tệp Excel: [ ${exportFileName} ]`);
+    }
+
+    /* =========================================================================
+       5. VÒNG QUAY MAY MẮN (CANVAS)
+       ========================================================================= */
+    let teams = ["Tổ 1", "Tổ 2", "Tổ 3", "Tổ 4"];
+    const wheelColors = ["#2563eb", "#06b6d4", "#f43f5e", "#f59e0b", "#10b981", "#8b5cf6"];
+    let currentWheelAngle = 0;
+    let isSpinning = false;
+
+    function drawWheel() {
+      const canvas = document.getElementById('wheelCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      const center = width / 2;
+      const radius = center - 10;
+      const sliceAngle = (2 * Math.PI) / teams.length;
+
+      ctx.clearRect(0, 0, width, height);
+
+      teams.forEach((team, idx) => {
+        const start = currentWheelAngle + idx * sliceAngle;
+        const end = start + sliceAngle;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = wheelColors[idx % wheelColors.length];
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#ffffff";
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(start + sliceAngle / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 16px 'Segoe UI', sans-serif";
+        ctx.fillText(team, radius - 25, 6);
+        ctx.restore();
+      });
+
+      ctx.beginPath();
+      ctx.arc(center, center, 18, 0, 2 * Math.PI);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#334155";
+      ctx.stroke();
+    }
+
+    function spinWheel() {
+      if (isSpinning) return;
+      isSpinning = true;
+      document.getElementById('wheelResultText').textContent = "Đang quay may mắn...";
+      document.getElementById('spinBtn').disabled = true;
+
+      const spins = 5 + Math.random() * 5;
+      const extraDeg = Math.random() * 360;
+      const totalRad = spins * 2 * Math.PI + (extraDeg * Math.PI / 180);
+      const duration = 4000;
+      const startTime = performance.now();
+      const initialAngle = currentWheelAngle;
+
+      function animateSpin(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - t, 4);
+
+        currentWheelAngle = initialAngle + totalRad * easeOut;
+        drawWheel();
+
+        if (Math.floor(elapsed / 120) % 2 === 0) {
+          playTickSound();
+        }
+
+        if (t < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          isSpinning = false;
+          document.getElementById('spinBtn').disabled = false;
+
+          const slice = (2 * Math.PI) / teams.length;
+          let norm = (currentWheelAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+          let pointerAngle = (3 * Math.PI / 2 - norm + 2 * Math.PI) % (2 * Math.PI);
+          let winningIdx = Math.floor(pointerAngle / slice) % teams.length;
+
+          const winningTeam = teams[winningIdx];
+          document.getElementById('wheelResultText').innerHTML = `🎉 Xin chúc mừng: <span style="color:var(--accent); font-size:1.5rem;">${winningTeam}</span>!`;
+          playSound('success');
+          triggerConfetti();
+        }
+      }
+      requestAnimationFrame(animateSpin);
+    }
+
+    function openWheelModal() {
+      document.getElementById('wheelModal').classList.add('open');
+      drawWheel();
+    }
+
+    function closeWheelModal() {
+      document.getElementById('wheelModal').classList.remove('open');
+    }
+
+    function editTeamsPrompt() {
+      const input = prompt("Nhập danh sách các Tổ (phân tách bởi dấu phẩy):", teams.join(", "));
+      if (input) {
+        const parsed = input.split(",").map(t => t.trim()).filter(t => t.length > 0);
+        if (parsed.length >= 2) {
+          teams = parsed;
+          drawWheel();
+          document.getElementById('wheelResultText').textContent = "Đã cập nhật danh sách tổ!";
+        } else {
+          alert("Vui lòng nhập ít nhất 2 tổ!");
+        }
+      }
+    }
+
+    /* =========================================================================
+       6. BẢNG XẾP HẠNG & DANH SÁCH 28 CÂU
+       ========================================================================= */
+    function openScoreboardModal() {
+      const className = document.getElementById('classNameInput').value || "12A1";
+      document.getElementById('modalClassNameDisplay').textContent = className;
+      const tbody = document.getElementById('scoreboardBody');
+      tbody.innerHTML = '';
+
+      const sorted = [...students].sort((a, b) => b.score - a.score);
+      sorted.forEach((st, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>#${idx + 1}</strong></td>
+          <td>${st.name}</td>
+          <td><span class="score-badge ${st.score >= 0 ? 'positive' : 'negative'}">${st.score >= 0 ? '+' : ''}${st.score}đ</span></td>
+          <td style="color:#059669; font-weight:700;">${st.correct}</td>
+          <td style="color:#dc2626; font-weight:700;">${st.wrong}</td>
+          <td>${st.attempts}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('scoreModal').classList.add('open');
+    }
+
+    function closeScoreboardModal() {
+      document.getElementById('scoreModal').classList.remove('open');
+    }
+
+    function openDrawerModal() {
+      const grid = document.getElementById('drawerGrid');
+      grid.innerHTML = '';
+
+      quizQuestions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'grid-num-btn';
+        if (idx === currentQuestionIndex) btn.classList.add('active');
+
+        const ans = userAnswers[q.id];
+        if (ans) {
+          if (ans.isCorrect) btn.classList.add('done-correct');
+          else btn.classList.add('done-wrong');
+        }
+
+        btn.textContent = q.id;
+        btn.onclick = () => {
+          currentQuestionIndex = idx;
+          renderQuestion(currentQuestionIndex);
+          closeDrawerModal();
+        };
+        grid.appendChild(btn);
+      });
+
+      document.getElementById('drawerModal').classList.add('open');
+    }
+
+    function closeDrawerModal() {
+      document.getElementById('drawerModal').classList.remove('open');
+    }
+
+    /* =========================================================================
+       7. ÂM THANH & PHÁO HOA
+       ========================================================================= */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('soundToggleBtn');
+      btn.textContent = soundEnabled ? "🔊 Âm thanh" : "🔇 Tắt tiếng";
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (type === 'click') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.setValueAtTime(600, ctx.currentTime);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        } else if (type === 'correct') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+          osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
+          osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.45);
+        } else if (type === 'wrong') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(250, ctx.currentTime);
+          osc.frequency.setValueAtTime(180, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } else if (type === 'success') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50];
+          freqs.forEach((f, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.09);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.09 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + i * 0.09);
+            osc.stop(ctx.currentTime + i * 0.09 + 0.25);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function playTickSound() {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.03);
+      } catch (e) {}
+    }
+
+    function triggerConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#2563eb', '#06b6d4', '#f43f5e', '#f59e0b', '#10b981', '#8b5cf6'];
+
+      for (let i = 0; i < 80; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.7) * 18,
+          size: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 10,
+          opacity: 1
+        });
+      }
+
+      function renderParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35;
+          p.rotation += p.vRot;
+          p.opacity -= 0.012;
+
+          if (p.opacity > 0) {
+            alive = true;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.opacity;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+          }
+        });
+
+        if (alive) {
+          requestAnimationFrame(renderParticles);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      requestAnimationFrame(renderParticles);
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        document.getElementById('timerText').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshStudentSelectDropdown();
+      renderQuestion(0);
+      startTimer();
+      drawWheel();
+    });
+  </script>
+</body>
+</html>
